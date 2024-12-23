@@ -1,0 +1,28 @@
+{
+    admin 0.0.0.0:2019
+    auto_https off
+    log {
+        format console
+        level DEBUG
+    }
+    servers {
+        trusted_proxies static private_ranges
+    }
+}
+
+studioscribe.ai {
+    log
+    encode gzip zstd
+
+    handle {
+        reverse_proxy nextjs:3000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    handle_errors {
+        respond "{http.error.status_code} {http.error.message}"
+    }
+}

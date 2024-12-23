@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile-NextJS
+    ports:
+      - "3000:3000"
+    networks:
+      - web
+
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile-Caddy
+    ports:
+      - "80:80"
+      - "443:443"  # Expose 443 for HTTPS
+    environment:
+      - NEXT_SERVER=nextjs
+    depends_on:
+      - nextjs  # Ensures that nextjs is started before Caddy
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
