@@ -1,28 +1,48 @@
-{
-    admin 0.0.0.0:2019
-    auto_https off
-    log {
-        format console
-        level DEBUG
-    }
-    servers {
-        trusted_proxies static private_ranges
-    }
-}
-
 studioscribe.ai {
-    log
-    encode gzip zstd
-
-    handle {
-        reverse_proxy nextjs:3000 {
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-        }
-    }
-
-    handle_errors {
-        respond "{http.error.status_code} {http.error.message}"
-    }
+    encode gzip
+    reverse_proxy nextjs:80
 }
+
+www.studioscribe.ai {
+	redir https://studioscribe.ai{uri} permanent
+}
+
+# api.studioscribe.ai {
+#     reverse_proxy api:4004
+
+# 	 header {
+#         -X-Powered-By
+#         -Server
+
+#         # enable HSTS
+#         Strict-Transport-Security max-age=31536000;
+
+#         # disable clients from sniffing the media type
+#         X-Content-Type-Options nosniff
+
+#         # clickjacking protection
+#         X-Frame-Options DENY
+
+#         # XSS Protection
+#         X-XSS-Protection "1; mode=block"
+#     }
+
+# 	rate_limit {
+#         # limit requests based on IP address
+#         zone api_limit {
+#             key {remote_host}
+#             # if using Cloudflare proxy, use the following key:
+#             # key {http.request.header.CF-Connecting-IP}
+#             events 100
+#             window 1m
+#         }
+
+#         zone burst_limit {
+#             key {remote_host}
+#             # if using Cloudflare proxy, use the following key:
+#             # key {http.request.header.CF-Connecting-IP}
+#             events 20
+#             window 1s
+#         }
+#     }
+# }
